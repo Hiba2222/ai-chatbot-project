@@ -1,97 +1,59 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 import requests
 from typing import Dict, Any, List
-from openai import OpenAI
-import anthropic
 
 class AIService:
     """Service to handle multiple AI model integrations via OpenRouter"""
     
     def __init__(self):
         self.api_key = os.getenv('OPENROUTER_API_KEY')
+        print(f"Loaded API key: {self.api_key[:10]}..." if self.api_key else "No API key found")
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.models_url = "https://openrouter.ai/api/v1/models"
-        self.available_models = []
-        self._load_models()
         
-    def _load_models(self):
-        """Load available models from OpenRouter API"""
-        try:
-            if not self.api_key:
-                print("Warning: OPENROUTER_API_KEY not found. Using default models.")
-                self.available_models = [
-                    {"id": "grok-beta", "name": "Grok AI", "provider": "x-ai"},
-                    {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "provider": "deepseek"},
-                    {"id": "meta-llama/llama-3.1-8b-instruct", "name": "LLaMA 3.1 8B", "provider": "meta"}
-                ]
-                return
-            
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
+        # 4 Free models that work with OpenRouter
+        self.available_models = [
+            {
+                "id": "meta-llama/llama-3.3-70b-instruct:free",
+                "name": "LLaMA 3.3 30B Instruct",
+                "provider": "Meta",
+                "description": "Fast and efficient free model"
+            },
+            {
+                "id": "deepseek/deepseek-chat-v3.1:free",
+                "name": "DeepSeek V3.1",
+                "provider": "Google",
+                "description": "Google's free instruction-tuned model"
+            },
+            {
+                "id": "google/gemma-3-27b-it:free",
+                "name": "gemma-3-27b",
+                "provider": "Google",
+                "description": "Compact and powerful free model"
+            },
+            {
+                "id": "mistralai/mistral-small-3.2-24b-instruct:free",
+                "name": "mistral-small-3.2",
+                "provider": "mistralai",
+                "description": "Multilingual free model"
             }
-            
-            response = requests.get(self.models_url, headers=headers)
-            response.raise_for_status()
-            
-            models_data = response.json()
-            self.available_models = []
-            
-            # Filter and format popular models
-            popular_models = [
-                "grok-beta",
-                "deepseek/deepseek-chat", 
-                "meta-llama/llama-3.1-8b-instruct",
-                "meta-llama/llama-3.1-70b-instruct",
-                "openai/gpt-4o",
-                "openai/gpt-4o-mini",
-                "anthropic/claude-3.5-sonnet",
-                "anthropic/claude-3-haiku",
-                "google/gemini-pro-1.5",
-                "mistralai/mistral-7b-instruct"
-            ]
-            
-            for model in models_data.get('data', []):
-                if model['id'] in popular_models:
-                    self.available_models.append({
-                        "id": model['id'],
-                        "name": model.get('name', model['id']),
-                        "provider": model.get('context_length', 'Unknown'),
-                        "description": model.get('description', '')
-                    })
-            
-            # If no models loaded, use defaults
-            if not self.available_models:
-                self.available_models = [
-                    {"id": "grok-beta", "name": "Grok AI", "provider": "x-ai"},
-                    {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "provider": "deepseek"},
-                    {"id": "meta-llama/llama-3.1-8b-instruct", "name": "LLaMA 3.1 8B", "provider": "meta"}
-                ]
-                
-        except Exception as e:
-            print(f"Error loading models from OpenRouter: {str(e)}")
-            # Fallback to default models
-            self.available_models = [
-                {"id": "grok-beta", "name": "Grok AI", "provider": "x-ai"},
-                {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "provider": "deepseek"},
-                {"id": "meta-llama/llama-3.1-8b-instruct", "name": "LLaMA 3.1 8B", "provider": "meta"}
-            ]
+        ]
     
     def get_available_models(self) -> List[Dict[str, str]]:
         """Get list of available models"""
         return self.available_models
     
     def get_response(self, model: str, message: str, language: str = 'en') -> str:
-        """Get response from selected model via OpenRouter or fallback"""
         try:
-            # If no OpenRouter API key, use fallback responses
             if not self.api_key:
-                return self._get_fallback_response(model, message, language)
+                return "Error: OPENROUTER_API_KEY not found. Please add it to your .env file"
             
-            # Find the model in available models
+            # Find the selected model
             selected_model = None
             for m in self.available_models:
-                if m['id'] == model or m['name'].lower() == model.lower():
+                if m['id'] == model or m['name'] == model:
                     selected_model = m
                     break
             
@@ -101,8 +63,8 @@ class AIService:
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
-                "HTTP-Referer": "http://localhost:5173",  # Your frontend URL
-                "X-Title": "AI Chatbot"  # Your app name
+                "HTTP-Referer": "http://localhost:5173",
+                "X-Title": "AI Chatbot"
             }
             
             system_prompt = self._get_system_prompt(language)
@@ -114,32 +76,37 @@ class AIService:
                     {"role": "user", "content": message}
                 ],
                 "temperature": 0.7,
-                "max_tokens": 2000
+                "max_tokens": 1000  # Reduced to avoid credit issues
             }
             
-            response = requests.post(self.api_url, json=data, headers=headers)
-            response.raise_for_status()
+            print(f"Sending request with model: {selected_model['id']}")
+            response = requests.post(self.api_url, json=data, headers=headers, timeout=30)
+            
+            if response.status_code != 200:
+                print(f"Error response: {response.text}")
+                return f"Error: {response.status_code} - {response.text}"
             
             result = response.json()
-            return result['choices'][0]['message']['content']
             
+            if 'choices' in result and len(result['choices']) > 0:
+                return result['choices'][0]['message']['content']
+            else:
+                return f"Error: Unexpected response format - {result}"
+            
+        except requests.exceptions.Timeout:
+            return "Error: Request timed out. Please try again."
+        except requests.exceptions.RequestException as e:
+            return f"Error: Network error - {str(e)}"
         except Exception as e:
-            return self._get_fallback_response(model, message, language)
-    
-    def _get_fallback_response(self, model: str, message: str, language: str) -> str:
-        """Fallback response when OpenRouter is not available"""
-        if language == 'ar':
-            return f"أهلاً! أنا نموذج {model}. رسالتك: '{message}'. (هذا رد تجريبي - يرجى إعداد مفتاح OpenRouter للحصول على ردود حقيقية)"
-        else:
-            return f"Hello! I'm the {model} model. Your message: '{message}'. (This is a demo response - please set up your OpenRouter API key for real responses)"
-    
+            return f"Error: {str(e)}"
+
     def generate_user_summary(self, chat_history: list, language: str = 'en') -> str:
         """Generate AI-powered user summary from chat history"""
         try:
-            # Compile chat history
+            # Compile chat history (last 10 to avoid token limits)
             history_text = "\n".join([
                 f"User: {chat['user_message']}\nAI: {chat['ai_response']}"
-                for chat in chat_history[-20:]  # Last 20 conversations
+                for chat in chat_history[-10:]
             ])
             
             prompt = self._get_summary_prompt(history_text, language)
@@ -167,22 +134,14 @@ class AIService:
     def _get_summary_prompt(self, history: str, language: str) -> str:
         """Generate prompt for user summary"""
         if language == 'ar':
-            return f"""بناءً على سجل المحادثات التالي، اكتب ملخصاً قصيراً (3-5 جمل) عن:
-            - الاهتمامات الرئيسية للمستخدم
-            - المواضيع الشائعة في استفساراته
-            - نمط استخدامه للشات بوت
+            return f"""بناءً على سجل المحادثات التالي، اكتب ملخصاً قصيراً (2-3 جمل) عن اهتمامات المستخدم:
             
-            سجل المحادثات:
             {history}
             
             الملخص:"""
         else:
-            return f"""Based on the following chat history, write a brief summary (3-5 sentences) about:
-            - The user's main interests
-            - Common topics in their queries
-            - Their chatbot usage patterns
+            return f"""Based on the following chat history, write a brief summary (2-3 sentences) about the user's interests:
             
-            Chat History:
             {history}
             
             Summary:"""
