@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './components/ThemeProvider';
-import { LanguageProvider } from './components/LanguageProvider';
+import { ThemeProvider } from './components/theme/ThemeProvider';
+import { LanguageProvider } from './components/language-section/LanguageProvider';
 import { Toaster } from '@/components/ui/sonner';
-import Navbar from './components/Navbar';
-import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import { SignUp } from './components/SignUp';
-import ChatBot from './components/ChatBot';
-import UserProfile from './components/UserProfile';
-import ChatHistory from './components/ChatHistory';
+import Navbar from './components/navbar/Navbar';
+import LandingPage from './components/landing-page/LandingPage';
+import Login from './components/login/Login';
+import { SignUp } from './components/sign-up/SignUp';
+import ChatBot from './components/chatbot/ChatBot';
+import UserProfile from './components/user-profile/UserProfile';
+import ChatHistory from './components/chat-history/ChatHistory';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

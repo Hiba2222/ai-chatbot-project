@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { History, Trash2, Calendar, Bot, MessageSquare } from 'lucide-react';
 //import axios from 'axios';
-import api from '../api/axios';
+import api from '../../api/axios';
 import './ChatHistory.css';
 
 

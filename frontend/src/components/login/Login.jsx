@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import api from '../api/axios';
+import api from '../../api/axios';
 import axios from 'axios';
 import './Login.css';
 

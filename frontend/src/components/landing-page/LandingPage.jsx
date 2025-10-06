@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Bot, Languages, History, Sparkles, ArrowRight } from 'lucide-react';
 import './LandingPage.css';
-import api from '../api/axios';
+import api from '../../api/axios';
 
 const LandingPage = () => {
   const { t, i18n } = useTranslation();

@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 //import { Sidebar } from '@/Components/ui/sidebar';
-import { ThemeToggle } from './ThemeToggle';
-import api from '../api/axios';
+import { ThemeToggle } from '../theme/ThemeToggle';
+import api from '../../api/axios';
 import './Chatbot.css';
 
 

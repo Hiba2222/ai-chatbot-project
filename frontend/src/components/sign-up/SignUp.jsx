@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
+import api from '../../api/axios';
 import axios from 'axios';
 import './SignUp.css';
 

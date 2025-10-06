@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Bot, LogOut, User, MessageSquare, Home, History } from 'lucide-react';
-import LanguageToggle from './LanguageToggle';
+import LanguageToggle from '../language-section/LanguageToggle';
 import './Navbar.css';
 
 const Navbar = () => {
