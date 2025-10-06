@@ -2,6 +2,11 @@
 
 A full-stack multilingual chatbot application supporting English and Arabic with multiple AI models integration.
 
+## 🔗 Live Demo
+
+- Backend API (Render): https://ai-chatbot-project-2-chyi.onrender.com
+- Frontend App (Vercel): https://ai-chatbot-project-pearl.vercel.app/
+
 ## ✨ Features
 
 - 🌐 **Bilingual Support**: Full English and Arabic localization with RTL support
