@@ -19,25 +19,25 @@ class AIService:
                 "id": "meta-llama/llama-3.3-70b-instruct:free",
                 "name": "LLaMA 3.3 30B Instruct",
                 "provider": "Meta",
-                "description": "Fast and efficient free model"
+                "description": "Powerful 70B parameter model with advanced reasoning capabilities"
             },
             {
                 "id": "deepseek/deepseek-chat-v3.1:free",
                 "name": "DeepSeek V3.1",
-                "provider": "Google",
-                "description": "Google's free instruction-tuned model"
+                "provider": "DeepSeek",
+                "description": "Advanced chat model with strong coding and reasoning abilities"
             },
             {
                 "id": "google/gemma-3-27b-it:free",
                 "name": "gemma-3-27b",
                 "provider": "Google",
-                "description": "Compact and powerful free model"
+                "description": "Google's latest Gemma model with 27B parameters"
             },
             {
                 "id": "mistralai/mistral-small-3.2-24b-instruct:free",
                 "name": "mistral-small-3.2",
-                "provider": "mistralai",
-                "description": "Multilingual free model"
+                "provider": "Mistral AI",
+                "description": "Efficient 24B model with multilingual support and fast responses"
             }
         ]
     
