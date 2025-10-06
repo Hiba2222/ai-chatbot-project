@@ -123,31 +123,53 @@ HUGGINGFACE_API_KEY=your-huggingface-api-key
 ## 📁 Project Structure
 
 ```
-ai-chatbot/
+ai-chatbot-project/
 ├── backend/
 │   ├── api/
-│   │   ├── models.py          # Database models
-│   │   ├── views.py           # API endpoints
-│   │   ├── serializers.py     # Data serializers
-│   │   ├── ai_service.py      # AI integration
-│   │   └── urls.py            # URL routing
+│   │   ├── models.py              # Database models
+│   │   ├── views.py               # API endpoints
+│   │   ├── serializers.py         # Data serializers
+│   │   ├── ai_service.py          # AI integration
+│   │   └── urls.py                # API URL routing
+│   ├── config/
+│   │   ├── settings.py            # Django settings (CORS, JWT, DB)
+│   │   ├── urls.py                # Project URL routing
+│   │   ├── wsgi.py
+│   │   ├── asgi.py
+│   │   └── __init__.py
 │   ├── manage.py
 │   ├── requirements.txt
-│   └── .env
+│   ├── runtime.txt                # Python version for deploy
+│   └── .env.example               # Example env variables
 ├── frontend/
 │   ├── src/
+│   │   ├── api/
+│   │   │   └── axios.js           # Axios instance (uses VITE_API_BASE_URL)
 │   │   ├── components/
-│   │   │   ├── ChatBot.jsx
-│   │   │   ├── UserProfile.jsx
-│   │   │   ├── LandingPage.jsx
-│   │   │   └── LanguageToggle.jsx
-│   │   ├── i18n.js            # i18n configuration
+│   │   │   ├── chatbot/
+│   │   │   │   ├── Chatbot.jsx
+│   │   │   │   ├── Chatbot.css
+│   │   │   │   ├── header/ChatbotHeader.jsx
+│   │   │   │   ├── input/InputContainer.jsx
+│   │   │   │   └── messages/MessagesContainer.jsx
+│   │   │   ├── chat-history/
+│   │   │   │   ├── ChatHistory.jsx
+│   │   │   │   └── list/ChatList.jsx
+│   │   │   ├── landing-page/LandingPage.jsx
+│   │   │   ├── language-section/LanguageProvider.jsx
+│   │   │   ├── login/Login.jsx
+│   │   │   ├── sign-up/SignUp.jsx
+│   │   │   ├── navbar/Navbar.jsx
+│   │   │   └── user-profile/UserProfile.jsx
 │   │   ├── locales/
-│   │   │   ├── en.json        # English translations
-│   │   │   └── ar.json        # Arabic translations
-│   │   └── App.jsx
-│   └── package.json
-├── run.sh                     # Startup script
+│   │   │   ├── en.json            # English translations
+│   │   │   └── ar.json            # Arabic translations
+│   │   ├── i18n.js                # i18n configuration
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js (implicit)
+├── run.sh                         # Local dev startup script
 └── README.md
 ```
 
@@ -442,4 +464,4 @@ Your Name - [GitHub Profile]
 
 ---
 
-**Made with ❤️ using AI-assisted development tools**
+**Made with ❤️ **
