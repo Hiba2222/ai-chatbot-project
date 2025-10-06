@@ -308,6 +308,56 @@ cd frontend
 vercel
 ```
 
+### Monorepo: Backend on Render (backend/)
+
+Here’s exactly how to deploy your monorepo:
+
+#### Backend on Render (points to `backend/`)
+
+1) Connect repo
+- Render Dashboard → New → Web Service → Connect your GitHub account.
+- Select the repo: https://github.com/Hiba2222/ai-chatbot-project (not the `/tree/main/backend` URL).
+
+2) Configure service
+- Root Directory: `backend`
+- Environment: Python
+- Region/Instance: as you prefer
+- Build Command:
+  ```bash
+  pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+  ```
+- Start Command:
+  ```bash
+  gunicorn config.wsgi:application
+  ```
+
+3) Environment variables (Render → Service → Environment)
+- `DJANGO_SECRET_KEY` = a strong random string
+- `DJANGO_DEBUG` = False
+- `OPENROUTER_API_KEY` = your key
+- `HUGGINGFACE_API_KEY` = your key (optional)
+- `ALLOWED_HOSTS` = your-service-name.onrender.com
+- `CORS_ALLOWED_ORIGINS` = https://your-frontend.vercel.app
+- Optional for Postgres: `DATABASE_URL` (if you add Render PostgreSQL and wire it in settings)
+
+4) Notes for your codebase
+- In `backend/config/settings.py`, either:
+  - Add your Render and Vercel URLs to the existing `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`, or
+  - Make them read from env:
+    ```python
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
+    ```
+- Static files are already handled with WhiteNoise in your settings.
+- If you want to use Postgres, add `dj-database-url` and parse `DATABASE_URL` in `settings.py` (snippet below):
+  ```python
+  import dj_database_url
+  if os.getenv('DATABASE_URL'):
+      DATABASES = {
+          'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600, ssl_require=True)
+      }
+  ```
+
 ## 🧪 Testing
 
 ```bash

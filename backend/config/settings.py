@@ -31,7 +31,11 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-insecure-secret-key')  # replac
 # Debug mode: default True for development; set DJANGO_DEBUG=False in production
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+# Hosts and CORS read from environment for deploy flexibility
+# Examples:
+#   ALLOWED_HOSTS=your-service.onrender.com,localhost,127.0.0.1
+#   CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
 
 
 # Application definition
@@ -161,11 +165,10 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://localhost:3000'
+).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -182,6 +185,17 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+## Database configuration: prefer DATABASE_URL if provided (e.g., Render PostgreSQL)
+try:
+    import dj_database_url  # type: ignore
+    if os.getenv('DATABASE_URL'):
+        DATABASES = {
+            'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600, ssl_require=True)
+        }
+except Exception:
+    # Fall back to default sqlite3 defined above if dj_database_url missing or not configured
+    pass
 
 # Logging configuration: use console logging and capture Django/DRF logs
 LOGGING = {
