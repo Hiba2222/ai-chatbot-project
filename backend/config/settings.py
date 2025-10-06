@@ -35,10 +35,13 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 # Examples:
 #   ALLOWED_HOSTS=your-service.onrender.com,localhost,127.0.0.1
 #   CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
-ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,0.0.0.0,ai-chatbot-project-2-chyi.onrender.com'
-).split(',')
+# Build ALLOWED_HOSTS from env, but fall back to safe defaults when env is missing or blank
+_raw_allowed_hosts = os.getenv('ALLOWED_HOSTS', '').strip()
+if _raw_allowed_hosts:
+    _parsed_hosts = [h.strip() for h in _raw_allowed_hosts.split(',') if h.strip()]
+    ALLOWED_HOSTS = _parsed_hosts or ['localhost', '127.0.0.1', '0.0.0.0', 'ai-chatbot-project-2-chyi.onrender.com']
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'ai-chatbot-project-2-chyi.onrender.com']
 
 
 # Application definition
@@ -194,6 +197,15 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     'CSRF_TRUSTED_ORIGINS',
     'https://ai-chatbot-project-2-chyi.onrender.com'
 ).split(',')
+
+# Always include Render external hostname if available
+_render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
+
+_render_origin = f"https://{_render_host}" if _render_host else None
+if _render_origin and _render_origin not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(_render_origin)
 
 ## Database configuration: prefer PostgreSQL DATABASE_URL if provided
 try:
