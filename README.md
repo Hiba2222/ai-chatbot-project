@@ -1,3 +1,8 @@
+<img width="1351" height="594" alt="10" src="https://github.com/user-attachments/assets/891b1efc-de93-47ad-8855-030fee89e201" />
+<img width="1347" height="579" alt="9" src="https://github.com/user-attachments/assets/64645d48-7e49-4eeb-a7e5-a8428714f7f8" />
+<img width="424" height="566" alt="8" src="https://github.com/user-attachments/assets/ec9bd162-1829-47f3-a1f1-78b1621880b9" />
+<img width="410" height="594" alt="7" src="https://github.com/user-attachments/assets/14916dd7-ce6e-4f50-9933-9f394cbdec19" />
+<img width="1334" height="582" alt="6" src="https://github.com/user-attachments/assets/1a5674a3-c499-476f-a035-6a7ef017f59c" />
 # 🤖 AI-Powered Chatbot Platform
 
 A full-stack multilingual chatbot application supporting English and Arabic with multiple AI models integration.
@@ -450,7 +455,7 @@ python manage.py createsuperuser
 For issues and questions:
 - Create an issue on GitHub
 - Check documentation at `/docs`
-- Contact: your-email@example.com
+- Contact: hiba.nahdi@ensi-uma.tn
 
 ## 📄 License
 
@@ -458,7 +463,7 @@ MIT License - see LICENSE file
 
 ## 👨‍💻 Author
 
-Your Name - [GitHub Profile]
+Hiba Nahdi - https://github.com/Hiba2222
 
 ## 🙏 Acknowledgments
 
