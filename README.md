@@ -445,7 +445,7 @@ python manage.py createsuperuser
 For issues and questions:
 - Create an issue on GitHub
 - Check documentation at `/docs`
-- Contact: your-email@example.com
+- Contact: hiba.nahdi@ensi-uma.tn
 
 ## 📄 License
 
@@ -453,7 +453,7 @@ MIT License - see LICENSE file
 
 ## 👨‍💻 Author
 
-Your Name - [GitHub Profile]
+Hiba Nahdi - https://github.com/Hiba2222
 
 ## 🙏 Acknowledgments
 
