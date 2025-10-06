@@ -1,0 +1,44 @@
+# ---- Python / Django ----
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+
+# Django stuff
+db.sqlite3
+*.log
+staticfiles/
+media/
+
+# Migrations (optional, keep if you want history in repo)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# ---- React / Node ----
+node_modules/
+build/
+dist/
+.npm/
+.cache/
+*.lock
+
+# ---- Environment & Secrets ----
+*.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# ---- OS Files ----
+.DS_Store
+Thumbs.db
+
+# ---- IDEs & Editors ----
+.vscode/
+.idea/
+*.iml

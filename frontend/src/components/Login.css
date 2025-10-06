@@ -1,0 +1,246 @@
+/* Login Component Styles */
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(var(--background));
+  padding: 1rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 24rem;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.form-input {
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: border-color 200ms ease;
+  padding-inline-start: 2.5rem; /* start text after the icon (LTR/RTL) */
+}
+
+/* Stronger specificity to guarantee spacing after the icon */
+.login-form .form-group .form-input {
+  padding-inline-start: 2.75rem !important;
+}
+
+/* Explicit RTL override: put spacing on the end side when rtl */
+.login-container[dir='rtl'] .login-form .form-group .form-input {
+  padding-inline-start: 0 !important;
+  padding-inline-end: 2.75rem !important;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.form-input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 200ms ease;
+  cursor: pointer;
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.login-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.login-footer-text {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.login-footer-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 200ms ease;
+}
+
+.login-footer-link:hover {
+  color: hsl(var(--primary) / 0.8);
+  text-decoration: underline;
+}
+
+/* Error states */
+.form-input.error {
+  border-color: hsl(var(--destructive));
+}
+
+.error-message {
+  color: hsl(var(--destructive));
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Loading state */
+.login-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.login-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid hsl(var(--primary-foreground) / 0.3);
+  border-top: 2px solid hsl(var(--primary-foreground));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Icon container styles */
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  background-color: hsl(var(--muted));
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.icon-container .icon {
+  color: hsl(var(--primary));
+}
+
+/* Form input icon styles */
+.relative {
+  position: relative;
+}
+
+.form-input-icon {
+  position: absolute;
+  inset-inline-start: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+/* Password visibility toggle (eye icon) */
+.form-input-toggle {
+  position: absolute;
+  inset-inline-end: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.75rem;
+  width: 1.75rem;
+  color: hsl(var(--muted-foreground));
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.form-input-toggle:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Add end padding when toggle is present */
+.has-toggle .form-input {
+  padding-inline-end: 2.25rem;
+}
+
+
+/* Ensure input spans full width within relative wrapper */
+.login-form .relative .form-input {
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .login-container {
+    padding: 0.5rem;
+  }
+  
+  .login-card {
+    padding: 1.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+  }
+}

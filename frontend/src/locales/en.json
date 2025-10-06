@@ -1,0 +1,103 @@
+{
+    "nav": {
+      "home": "Home",
+      "chatbot": "Chatbot",
+      "profile": "Profile",
+      "login": "Login",
+      "signup": "Sign Up",
+      "logout": "Logout"
+    },
+    "landing": {
+      "hero_title": "Welcome to AI Chatbot",
+      "hero_subtitle": "Experience the power of multiple AI models in one place",
+      "hero_cta": "Get Started",
+      "features_title": "Features",
+      "feature_1_title": "Multiple AI Models",
+      "feature_1_desc": "Choose from powerful AI models for your conversations",
+      "feature_2_title": "Bilingual Support",
+      "feature_2_desc": "Full support for English and Arabic languages",
+      "feature_3_title": "Smart History",
+      "feature_3_desc": "Save and review all your conversations anytime",
+      "about_title": "About Us",
+      "about_text": "Get the best AI assistance in your preferred language—English or Arabic—with access to multiple powerful models and the ability to save every conversation."
+    },
+    "auth": {
+      "login_title": "Login to Your Account",
+      "signup_title": "Create New Account",
+      "email": "Email Address",
+      "username": "Username",
+      "password": "Password",
+      "confirm_password": "Confirm Password",
+      "login_button": "Login",
+      "signup_button": "Sign Up",
+      "forgot_password": "Forgot Password?",
+      "no_account": "Don't have an account?",
+      "have_account": "Already have an account?",
+      "language_preference": "Preferred Language"
+    },
+    "chat": {
+      "title": "AI Chatbot",
+      "select_model": "Select AI Model",
+      "model_grok": "Grok AI",
+      "model_deepseek": "DeepSeek",
+      "model_llama": "LLaMA",
+      "placeholder": "Type your message here...",
+      "send_button": "Send",
+      "new_chat": "New Chat",
+      "chat_history": "Chat History",
+      "clear_chat": "Clear Chat",
+      "no_messages": "No messages yet. Start a conversation!",
+      "thinking": "AI is thinking...",
+      "error_empty": "Please enter a message",
+      "error_network": "Network error. Please try again.",
+      "error_auth": "Authentication required. Please login."
+    },
+    "profile": {
+      "title": "User Profile",
+      "ai_summary_title": "AI-Generated Profile Summary",
+      "ai_summary_loading": "Generating your profile summary...",
+      "interests": "Your Interests",
+      "common_queries": "Common Query Topics",
+      "total_chats": "Total Conversations",
+      "joined_date": "Member Since",
+      "language_pref": "Language Preference",
+      "edit_profile": "Edit Profile",
+      "export_history": "Export Chat History",
+      "export_history_txt": "Export as TXT",
+      "export_history_pdf": "Export as PDF",
+      "no_summary": "Start chatting to generate your AI profile summary!"
+    },
+    "history": {
+      "title": "Chat History",
+      "no_history": "No chat history yet",
+      "delete_confirm": "Are you sure you want to delete this chat?",
+      "delete_button": "Delete",
+      "view_button": "View",
+      "date_label": "Date",
+      "model_label": "Model Used"
+    },
+    "errors": {
+      "invalid_input": "Please enter a valid query",
+      "server_error": "Server error. Please try again later.",
+      "unauthorized": "Unauthorized access",
+      "rate_limit": "Too many requests. Please wait a moment.",
+      "required_field": "This field is required",
+      "invalid_email": "Please enter a valid email address",
+      "password_mismatch": "Passwords do not match",
+      "email_in_use": "This email is already in use",
+      "min_password": "Password must be at least 8 characters"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "loading": "Loading...",
+      "success": "Success!",
+      "error": "Error",
+      "confirm": "Confirm",
+      "back": "Back",
+      "next": "Next"
+    }
+  }
