@@ -198,6 +198,12 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     'https://ai-chatbot-project-2-chyi.onrender.com'
 ).split(',')
 
+# Allow any Vercel preview/production domain by default
+# This helps when you can't set env vars on Render free plan
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+]
+
 # Always include Render external hostname if available
 _render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
 if _render_host and _render_host not in ALLOWED_HOSTS:
@@ -206,6 +212,13 @@ if _render_host and _render_host not in ALLOWED_HOSTS:
 _render_origin = f"https://{_render_host}" if _render_host else None
 if _render_origin and _render_origin not in CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.append(_render_origin)
+
+# Explicitly allow the user's Vercel origin
+_vercel_origin = 'https://ai-chatbot-project-pearl.vercel.app'
+if _vercel_origin not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(_vercel_origin)
+if _vercel_origin not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(_vercel_origin)
 
 ## Database configuration: prefer PostgreSQL DATABASE_URL if provided
 try:
