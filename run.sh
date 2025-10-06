@@ -26,12 +26,25 @@ cd backend
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
     echo "Creating Python virtual environment..."
-    python3 -m venv venv
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -m venv venv
+    else
+        python -m venv venv
+    fi
 fi
 
-# Activate virtual environment
+# Activate virtual environment (Linux/macOS Git Bash/WSL vs Windows Git Bash)
 echo "Activating virtual environment..."
-source venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+    # POSIX
+    source venv/bin/activate
+elif [ -f "venv/Scripts/activate" ]; then
+    # Windows venv structure (Git Bash)
+    source venv/Scripts/activate
+else
+    echo -e "${RED}Could not find venv activate script. Exiting.${NC}"
+    exit 1
+fi
 
 # Install Python dependencies
 echo "Installing Python dependencies..."
@@ -82,7 +95,7 @@ echo "   🚀 Application Started Successfully!"
 echo "==========================================${NC}"
 echo ""
 echo -e "Frontend: ${GREEN}http://localhost:5173${NC}"
-echo -e "Backend:  ${GREEN}http://localhost:8000${NC}"
+echo -e "Backend:  ${GREEN}http://127.0.0.1:8000${NC}"
 echo -e "Admin:    ${GREEN}http://localhost:8000/admin${NC}"
 echo ""
 echo "Default superuser: admin / admin123"

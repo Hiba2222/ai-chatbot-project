@@ -272,91 +272,73 @@ Users can export their chat history in JSON format:
 
 ## 🚢 Deployment
 
-### Heroku Deployment
+### Backend → Render (Django)
 
-```bash
-# Install Heroku CLI
-# Login to Heroku
-heroku login
-
-# Create app
-heroku create your-app-name
-
-# Add buildpacks
-heroku buildpacks:add heroku/python
-heroku buildpacks:add heroku/nodejs
-
-# Set environment variables
-heroku config:set DJANGO_SECRET_KEY=your-secret
-heroku config:set OPENROUTER_API_KEY=your-key
-
-# Deploy
-git push heroku main
-
-# Run migrations
-heroku run python backend/manage.py migrate
-```
-
-### Vercel Deployment (Frontend)
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-cd frontend
-vercel
-```
-
-### Monorepo: Backend on Render (backend/)
-
-Here’s exactly how to deploy your monorepo:
-
-#### Backend on Render (points to `backend/`)
-
-1) Connect repo
-- Render Dashboard → New → Web Service → Connect your GitHub account.
-- Select the repo: https://github.com/Hiba2222/ai-chatbot-project (not the `/tree/main/backend` URL).
-
-2) Configure service
-- Root Directory: `backend`
-- Environment: Python
-- Region/Instance: as you prefer
-- Build Command:
-  ```bash
-  pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
-  ```
+1) Create Web Service
+- Connect your GitHub repo.
+- Root Directory: `backend/`
 - Start Command:
   ```bash
   gunicorn config.wsgi:application
   ```
-
-3) Environment variables (Render → Service → Environment)
-- `DJANGO_SECRET_KEY` = a strong random string
-- `DJANGO_DEBUG` = False
-- `OPENROUTER_API_KEY` = your key
-- `HUGGINGFACE_API_KEY` = your key (optional)
-- `ALLOWED_HOSTS` = your-service-name.onrender.com
-- `CORS_ALLOWED_ORIGINS` = https://your-frontend.vercel.app
-- Optional for Postgres: `DATABASE_URL` (if you add Render PostgreSQL and wire it in settings)
-
-4) Notes for your codebase
-- In `backend/config/settings.py`, either:
-  - Add your Render and Vercel URLs to the existing `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`, or
-  - Make them read from env:
-    ```python
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
-    ```
-- Static files are already handled with WhiteNoise in your settings.
-- If you want to use Postgres, add `dj-database-url` and parse `DATABASE_URL` in `settings.py` (snippet below):
-  ```python
-  import dj_database_url
-  if os.getenv('DATABASE_URL'):
-      DATABASES = {
-          'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600, ssl_require=True)
-      }
+- Build Command:
+  ```bash
+  pip install --upgrade pip setuptools wheel && \
+  pip install --no-cache-dir -r requirements.txt && \
+  python manage.py migrate && \
+  python manage.py collectstatic --noinput
   ```
+
+2) Python version
+- Keep `backend/runtime.txt` with:
+  ```
+  python-3.12.5
+  ```
+- If you cannot set Root Directory, add a `runtime.txt` at repo root with the same content.
+
+3) Database choice
+- SQLite (default): do NOT set `DATABASE_URL` on the service. Data is ephemeral on free plan unless you attach a Disk.
+- Postgres (recommended for production): provision Render PostgreSQL and set `DATABASE_URL` on the service.
+
+4) Environment and hosts
+- Set in dashboard if available (or use code defaults already present):
+  - `DJANGO_SECRET_KEY`: strong random value
+  - `DJANGO_DEBUG`: `False`
+  - `OPENROUTER_API_KEY`, `HUGGINGFACE_API_KEY` (optional)
+- `backend/config/settings.py` includes safe defaults for:
+  - `ALLOWED_HOSTS` including your Render host
+  - `CSRF_TRUSTED_ORIGINS` including your Render host
+  - CORS for Vercel (`CORS_ALLOWED_ORIGIN_REGEXES` for `*.vercel.app`), plus explicit allow for your project domain
+
+5) Deploy
+- Click “Clear build cache & deploy” to ensure changes take effect.
+- Health check: `GET https://<your-service>.onrender.com/api/models/` should return HTTP 200.
+
+Troubleshooting (Render)
+- If you see Python 3.13 in logs, Root Directory isn’t `backend/` or root `runtime.txt` is missing.
+- `DisallowedHost`: ensure your Render hostname is included (defaults already cover this).
+- `sqlite sslmode` during migrate: ensure `DATABASE_URL` is not set unless you’re using Postgres.
+
+### Frontend → Vercel (Vite React)
+
+1) Create Project
+- Root directory: `frontend/`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+2) Environment Variable
+- Add in Vercel Project → Settings → Environment Variables:
+  ```
+  VITE_API_BASE_URL=https://<your-service>.onrender.com
+  ```
+- Redeploy after saving.
+
+3) Case-sensitive paths
+- Vercel uses a case-sensitive filesystem. Ensure imports match file names exactly (e.g., `Chatbot.jsx` not `ChatBot.jsx`).
+
+Troubleshooting (Vercel)
+- CORS blocked: backend must allow your Vercel origin. Defaults include `*.vercel.app`; we also explicitly added your domain. If you change domains, update backend CORS.
+- 404 on `/`: expected on backend; verify `/api/models/` instead.
 
 ## 🧪 Testing
 
