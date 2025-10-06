@@ -299,9 +299,4 @@
   }
 }
 
-/* Animations */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Animations: use global keyframes from src/index.css */

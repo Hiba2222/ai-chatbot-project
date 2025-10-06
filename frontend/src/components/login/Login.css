@@ -158,10 +158,10 @@
   border: 2px solid hsl(var(--primary-foreground) / 0.3);
   border-top: 2px solid hsl(var(--primary-foreground));
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin-centered 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes spin-centered {
   to {
     transform: translate(-50%, -50%) rotate(360deg);
   }

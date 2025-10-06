@@ -69,14 +69,7 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Use global @keyframes spin from src/index.css */
 
 /* Ripple effect */
 .theme-toggle-button::before {

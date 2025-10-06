@@ -41,24 +41,7 @@
   gap: 0.5rem;
 }
 
-
-/* Animations */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Animations: use global keyframes from src/index.css */
 
 .message-item {
   animation: fadeIn 0.3s ease-in-out;

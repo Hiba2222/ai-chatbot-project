@@ -29,12 +29,7 @@
   height: fit-content;
 }
 
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Animations: use global keyframes from src/index.css */
 
 /* RTL Support */
 [dir="rtl"] .chat-history-header {
