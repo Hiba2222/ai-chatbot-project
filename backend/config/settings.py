@@ -35,7 +35,10 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 # Examples:
 #   ALLOWED_HOSTS=your-service.onrender.com,localhost,127.0.0.1
 #   CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,0.0.0.0,ai-chatbot-project-2-chyi.onrender.com'
+).split(',')
 
 
 # Application definition
@@ -185,6 +188,12 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# CSRF trusted origins: allow from env or default to Render hostname for free plan
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://ai-chatbot-project-2-chyi.onrender.com'
+).split(',')
 
 ## Database configuration: prefer DATABASE_URL if provided (e.g., Render PostgreSQL)
 try:

@@ -58,7 +58,7 @@ EOF
 echo -e "${GREEN}[4/6] Starting Django backend server...${NC}"
 python manage.py runserver 8000 &
 BACKEND_PID=$!
-echo "Backend running on http://localhost:8000 (PID: $BACKEND_PID)"
+echo "Backend running on http://127.0.0.1:8000 (PID: $BACKEND_PID)"
 
 # Move to frontend
 cd ../frontend
