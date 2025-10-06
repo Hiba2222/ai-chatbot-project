@@ -1,16 +1,56 @@
-# React + Vite
+# Frontend (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React frontend for the AI Chatbot project. It uses Vite, React Router, i18next, Tailwind CSS, and Axios.
 
-Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## React Compiler
+Dev server runs at http://localhost:5173
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Scripts
 
-## Expanding the ESLint configuration
+- dev: Start the Vite dev server
+- build: Build for production
+- preview: Preview the production build locally
+- lint: Run ESLint
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
+
+## Environment & API
+
+The frontend expects the backend API at http://localhost:8000. Update API base URLs in `src/api/` if needed.
+
+## Internationalization (i18n)
+
+- Config: `src/i18n.js`
+- Translation files: `src/locales/en.json`, `src/locales/ar.json`
+
+Usage example:
+
+```jsx
+import { useTranslation } from 'react-i18next';
+
+function Title() {
+  const { t } = useTranslation();
+  return <h1>{t('landing.hero_title')}</h1>;
+}
+```
+
+## Styling
+
+Tailwind CSS 4 is configured via PostCSS. Utility-first classes are used throughout components.
+
+## Notes
+
+- Ensure backend is running at http://localhost:8000 for API calls.
+- Set your API keys in `backend/.env` as documented in the root `README.md`.

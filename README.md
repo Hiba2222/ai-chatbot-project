@@ -5,37 +5,38 @@ A full-stack multilingual chatbot application supporting English and Arabic with
 ## ✨ Features
 
 - 🌐 **Bilingual Support**: Full English and Arabic localization with RTL support
-- 🤖 **3 AI Models**: Grok, DeepSeek, and LLaMA integration
+- 🤖 **Multiple AI Models**: OpenRouter models with optional Hugging Face fallback
 - 🎯 **AI User Summaries**: Automatic profile generation based on chat history
 - 💾 **Chat History**: Save and review all conversations
 - 🔐 **JWT Authentication**: Secure user authentication
 - 📱 **Responsive Design**: Mobile-friendly interface
-- 📊 **User Analytics**: Track conversation patterns and interests
 - 📥 **Export Feature**: Download chat history as JSON
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React 18
+- React 19 + Vite
 - React Router
 - i18next (Internationalization)
 - Axios
-- Tailwind CSS
+- Tailwind CSS 4
 - Lucide React Icons
 
 ### Backend
 - Django 4.2
-- Django REST Framework
+- Django REST Framework + SimpleJWT
 - JWT Authentication
-- SQLite Database
-- OpenAI/Grok/DeepSeek APIs
+- SQLite Database (default)
+- OpenRouter API (primary) + Hugging Face Inference API (fallback)
 
 ## 📋 Prerequisites
 
 - Python 3.10+
 - Node.js 18+
 - npm or yarn
-- API Keys for AI models (at least one)
+- API keys (at least one of the following):
+  - OPENROUTER_API_KEY (recommended)
+  - HUGGINGFACE_API_KEY (optional fallback)
 
 ## 🚀 Quick Start
 
@@ -44,7 +45,7 @@ A full-stack multilingual chatbot application supporting English and Arabic with
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd ai-chatbot
+cd ai-chatbot-project
 
 # Make run script executable
 chmod +x run.sh
@@ -59,6 +60,8 @@ The script will:
 3. Run database migrations
 4. Create admin user
 5. Start backend and frontend servers
+
+Note: On Windows, use Git Bash/WSL to run the script, or follow the manual setup below.
 
 ### Option 2: Manual Setup
 
@@ -97,9 +100,8 @@ cd frontend
 # Install dependencies
 npm install
 
-# Create locales folder
-mkdir -p public/locales
-# Copy en.json and ar.json to public/locales/
+# Ensure translation files exist
+# Place your JSON files at: src/locales/en.json and src/locales/ar.json
 
 # Start development server
 npm run dev
@@ -111,15 +113,11 @@ Create `backend/.env` file:
 
 ```env
 DJANGO_SECRET_KEY=your-secret-key
-DEBUG=True
+DJANGO_DEBUG=True
 
 # AI API Keys
-GROK_API_KEY=your-grok-api-key
-DEEPSEEK_API_KEY=your-deepseek-api-key
-OPENAI_API_KEY=your-openai-api-key
-
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+OPENROUTER_API_KEY=your-openrouter-api-key
+HUGGINGFACE_API_KEY=your-huggingface-api-key
 ```
 
 ## 📁 Project Structure
@@ -144,11 +142,10 @@ ai-chatbot/
 │   │   │   ├── LandingPage.jsx
 │   │   │   └── LanguageToggle.jsx
 │   │   ├── i18n.js            # i18n configuration
+│   │   ├── locales/
+│   │   │   ├── en.json        # English translations
+│   │   │   └── ar.json        # Arabic translations
 │   │   └── App.jsx
-│   ├── public/
-│   │   └── locales/
-│   │       ├── en.json        # English translations
-│   │       └── ar.json        # Arabic translations
 │   └── package.json
 ├── run.sh                     # Startup script
 └── README.md
@@ -160,12 +157,16 @@ ai-chatbot/
 - `POST /api/auth/signup` - User registration
 - `POST /api/auth/login` - User login
 - `POST /api/auth/token/refresh` - Refresh JWT token
+- `GET /api/auth/test` - Verify JWT-protected route
 
 ### Chat
 - `POST /api/chat` - Send message to AI
 - `GET /api/chat/history` - Get chat history
 - `DELETE /api/chat/<id>` - Delete specific chat
 - `GET /api/chat/export` - Export chat history
+
+### Models
+- `GET /api/models` - List available AI models
 
 ### User
 - `GET /api/user/profile` - Get user profile with AI summary
@@ -175,7 +176,7 @@ ai-chatbot/
 
 ### Structure
 ```
-public/locales/
+src/locales/
 ├── en.json    # English translations
 └── ar.json    # Arabic translations
 ```
@@ -203,29 +204,14 @@ i18n.changeLanguage('en'); // Switch to English
 
 ## 🤖 AI Model Integration
 
-The application supports three AI models:
+The application uses OpenRouter as the primary provider and falls back to the Hugging Face Inference API when needed. Configure API keys via `OPENROUTER_API_KEY` and optionally `HUGGINGFACE_API_KEY`.
 
-1. **Grok AI** (xAI) - Primary model
-2. **DeepSeek** - Alternative model
-3. **LLaMA** (via OpenAI API) - Fallback model
+Current models are defined in `backend/api/ai_service.py` and include:
 
-### Adding New Models
-
-Edit `backend/api/ai_service.py`:
-
-```python
-def get_new_model_response(self, message: str, language: str) -> str:
-    # Your implementation
-    pass
-
-# Add to model_map in get_response()
-model_map = {
-    'grok': self.get_grok_response,
-    'deepseek': self.get_deepseek_response,
-    'llama': self.get_llama_response,
-    'newmodel': self.get_new_model_response  # Add here
-}
-```
+- meta-llama/llama-3.3-70b-instruct:free (Meta)
+- deepseek/deepseek-chat-v3.1:free (DeepSeek)
+- google/gemma-3-27b-it:free (Google)
+- mistralai/mistral-small-3.2-24b-instruct:free (Mistral)
 
 ## 📊 Database Models
 
@@ -246,7 +232,6 @@ model_map = {
 ## 🔒 Security Features
 
 - JWT token authentication
-- Rate limiting (100 requests/hour per user)
 - CORS protection
 - Environment variable protection
 - Secure password hashing
@@ -276,7 +261,7 @@ Users can export their chat history in JSON format:
   "chats": [
     {
       "date": "2025-10-04T10:00:00Z",
-      "model": "grok",
+      "model": "meta-llama/llama-3.3-70b-instruct:free",
       "user_message": "Hello",
       "ai_response": "Hi! How can I help?",
       "language": "en"
@@ -303,7 +288,7 @@ heroku buildpacks:add heroku/nodejs
 
 # Set environment variables
 heroku config:set DJANGO_SECRET_KEY=your-secret
-heroku config:set GROK_API_KEY=your-key
+heroku config:set OPENROUTER_API_KEY=your-key
 
 # Deploy
 git push heroku main
@@ -371,11 +356,21 @@ npm test
 
 ### Port Already in Use
 ```bash
+# macOS/Linux
 # Kill process on port 8000
 kill -9 $(lsof -t -i:8000)
-
 # Kill process on port 5173
 kill -9 $(lsof -t -i:5173)
+```
+
+On Windows (PowerShell):
+```powershell
+# Find PID on a port
+Get-NetTCPConnection -LocalPort 8000 | Select-Object -Expand OwningProcess
+Stop-Process -Id <PID> -Force
+
+Get-NetTCPConnection -LocalPort 5173 | Select-Object -Expand OwningProcess
+Stop-Process -Id <PID> -Force
 ```
 
 ### Database Issues
