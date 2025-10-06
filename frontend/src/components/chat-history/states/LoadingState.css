@@ -1,0 +1,25 @@
+/* Loading state */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  .loading-content {
+    text-align: center;
+  }
+  
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+    border-radius: 50%;
+    height: 3rem;
+    width: 3rem;
+    border: 2px solid transparent;
+    border-bottom-color: hsl(var(--primary));
+    margin: 0 auto 1rem;
+  }
+  
+  .loading-text {
+    color: hsl(var(--muted-foreground));
+  }

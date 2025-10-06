@@ -1,0 +1,27 @@
+.chat-history-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  
+  .chat-history-icon {
+    color: hsl(var(--primary));
+    height: 2rem;
+    width: 2rem;
+  }
+  
+  .chat-history-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+  
+  .chat-history-count {
+    background-color: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }

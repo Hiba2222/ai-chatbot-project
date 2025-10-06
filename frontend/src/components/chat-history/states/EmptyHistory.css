@@ -1,0 +1,16 @@
+.empty-history {
+    text-align: center;
+    padding: 5rem 0;
+  }
+  
+  .empty-history-icon {
+    height: 4rem;
+    width: 4rem;
+    margin: 0 auto 1rem;
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+  
+  .empty-history-text {
+    font-size: 1.25rem;
+    color: hsl(var(--muted-foreground));
+  }
