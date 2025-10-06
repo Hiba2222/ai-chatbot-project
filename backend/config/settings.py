@@ -195,13 +195,16 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     'https://ai-chatbot-project-2-chyi.onrender.com'
 ).split(',')
 
-## Database configuration: prefer DATABASE_URL if provided (e.g., Render PostgreSQL)
+## Database configuration: prefer PostgreSQL DATABASE_URL if provided
 try:
     import dj_database_url  # type: ignore
-    if os.getenv('DATABASE_URL'):
+    _db_url = os.getenv('DATABASE_URL')
+    if _db_url and (_db_url.startswith('postgres://') or _db_url.startswith('postgresql://')):
+        # Only override when a Postgres URL is provided
         DATABASES = {
-            'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600, ssl_require=True)
+            'default': dj_database_url.parse(_db_url, conn_max_age=600, ssl_require=True)
         }
+    # Otherwise keep the default SQLite config defined above
 except Exception:
     # Fall back to default sqlite3 defined above if dj_database_url missing or not configured
     pass
