@@ -8,8 +8,12 @@ from django.contrib.auth.models import User
 from .models import Chat, UserProfile
 from .serializers import ChatSerializer, UserProfileSerializer
 from .ai_service import ai_service
+from .services import get_or_create_profile
 from django.utils import timezone
 import json
+import logging
+
+logger = logging.getLogger('api.views')
 
 # Rate limiting
 from rest_framework.throttling import UserRateThrottle
@@ -18,7 +22,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
-    return HttpResponse("Hello from API 👋")
+    return HttpResponse("Hello from API ")
 
 class ChatRateThrottle(UserRateThrottle):
     rate = '30/minute'
@@ -29,24 +33,24 @@ class ChatRateThrottle(UserRateThrottle):
 def signup(request):
     """User registration endpoint"""
     try:
-        print(f"Signup request data: {request.data}")
+        logger.info("Signup request received")
         username = (request.data.get('username') or '').strip()
         email = (request.data.get('email') or '').strip().lower()
         password = request.data.get('password')
         language = request.data.get('language', 'en')
         
-        print(f"Parsed data - Username: {username}, Email: {email}, Password: {'*' * len(password) if password else 'None'}, Language: {language}")
+        logger.info(f"Parsed signup data - username={username}, email={email}, language={language}")
         
         # Validate required fields
         if not username or not email or not password:
-            print("Validation failed - missing required fields")
+            logger.info("Validation failed - missing required fields")
             return Response(
                 {'error': 'Username, email, and password are required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         if User.objects.filter(username=username).exists():
-            print("Username already exists")
+            logger.info("Username already exists")
             return Response(
                 {'error': 'Username already exists'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -54,25 +58,22 @@ def signup(request):
 
         # Enforce unique email (case-insensitive)
         if User.objects.filter(email__iexact=email).exists():
-            print("Email already in use")
+            logger.info("Email already in use")
             return Response(
                 {'error': 'Email already in use', 'code': 'email_exists'},
                 status=status.HTTP_409_CONFLICT
             )
         
-        print("Creating user...")
+        logger.info("Creating user...")
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-        print(f"User created: {user.username}")
+        logger.info(f"User created: {user.username}")
         
         # Create user profile
-        UserProfile.objects.create(
-            user=user,
-            language_preference=language
-        )
+        profile = get_or_create_profile(user, default_language=language)
         
         # Generate tokens
         refresh = RefreshToken.for_user(user)
@@ -88,11 +89,9 @@ def signup(request):
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
-        import traceback
-        print(f"Signup error: {str(e)}")
-        print(f"Traceback: {traceback.format_exc()}")
+        logger.exception("Signup error")
         return Response(
-            {'error': str(e), 'details': traceback.format_exc()},
+            {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -107,10 +106,7 @@ def login(request):
     user = authenticate(username=username, password=password)
     
     if user:
-        profile, created = UserProfile.objects.get_or_create(
-            user=user,
-            defaults={'language_preference': 'en'}
-        )
+        profile = get_or_create_profile(user)
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -140,8 +136,9 @@ def get_models(request):
             'count': len(models)
         })
     except Exception as e:
+        logger.exception("Error getting models")
         return Response(
-            {'error': str(e)},
+            {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -166,7 +163,7 @@ def chat(request):
         model = request.data.get('model', 'grok')  # Default to grok
         
         # Get user's language preference
-        profile = UserProfile.objects.get(user=request.user)
+        profile = get_or_create_profile(request.user)
         language = profile.language_preference
         
         # Get AI response
@@ -190,8 +187,9 @@ def chat(request):
         })
         
     except Exception as e:
+        logger.exception("Chat error")
         return Response(
-            {'error': str(e)},
+            {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -225,18 +223,15 @@ def delete_chat(request, chat_id):
 def user_profile(request):
     """Get user profile with AI-generated summary"""
     try:
-        profile, created = UserProfile.objects.get_or_create(
-            user=request.user,
-            defaults={'language_preference': 'en'}
-        )
-        
+        profile = get_or_create_profile(request.user)
         
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
         
     except Exception as e:
+        logger.exception("User profile error")
         return Response(
-            {'error': str(e)},
+            {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -246,10 +241,7 @@ def user_profile(request):
 def generate_profile_summary(request):
     """Force-generate or refresh the user's AI profile summary now"""
     try:
-        profile, created = UserProfile.objects.get_or_create(
-            user=request.user,
-            defaults={'language_preference': 'en'}
-        )
+        profile = get_or_create_profile(request.user)
 
         chats = Chat.objects.filter(user=request.user).order_by('-created_at')[:50]
         chat_data = [
@@ -270,8 +262,9 @@ def generate_profile_summary(request):
 
         return Response({'summary': summary, 'updated_at': profile.summary_updated_at})
     except Exception as e:
+        logger.exception("Profile summary error")
         return Response(
-            {'error': str(e)},
+            {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -282,17 +275,15 @@ def update_language(request):
     """Update user's language preference"""
     try:
         language = request.data.get('language')
-        profile, created = UserProfile.objects.get_or_create(
-            user=request.user,
-            defaults={'language_preference': 'en'}
-        )
+        profile = get_or_create_profile(request.user)
         profile.language_preference = language
         profile.save()
         
         return Response({'message': 'Language updated successfully'})
     except Exception as e:
+        logger.exception("Language update error")
         return Response(
-            {'error': str(e)},
+            {'error': 'Internal server error', 'details': str(e)},
             status=status.HTTP_400_BAD_REQUEST
         )
 

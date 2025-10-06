@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
+logger = logging.getLogger('api.ai_service')
 import requests
 from typing import Dict, Any, List
 
@@ -10,7 +12,10 @@ class AIService:
     
     def __init__(self):
         self.api_key = os.getenv('OPENROUTER_API_KEY')
-        print(f"Loaded API key: {self.api_key[:10]}..." if self.api_key else "No API key found")
+        if self.api_key:
+            logger.info("OpenRouter API key loaded from environment")
+        else:
+            logger.warning("OPENROUTER_API_KEY not found in environment")
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         
         # 4 Free models that work with OpenRouter
@@ -79,11 +84,11 @@ class AIService:
                 "max_tokens": 1000  # Reduced to avoid credit issues
             }
             
-            print(f"Sending request with model: {selected_model['id']}")
+            logger.info(f"Sending request with model: {selected_model['id']}")
             response = requests.post(self.api_url, json=data, headers=headers, timeout=30)
             
             if response.status_code != 200:
-                print(f"Error response: {response.text}")
+                logger.error(f"OpenRouter error {response.status_code}: {response.text[:500]}")
                 return f"Error: {response.status_code} - {response.text}"
             
             result = response.json()
@@ -94,12 +99,15 @@ class AIService:
                 return f"Error: Unexpected response format - {result}"
             
         except requests.exceptions.Timeout:
+            logger.exception("OpenRouter request timed out")
             return "Error: Request timed out. Please try again."
         except requests.exceptions.RequestException as e:
+            logger.exception("OpenRouter network error")
             return f"Error: Network error - {str(e)}"
         except Exception as e:
+            logger.exception("Unexpected error in get_response")
             return f"Error: {str(e)}"
-
+    
     def generate_user_summary(self, chat_history: list, language: str = 'en') -> str:
         """Generate AI-powered user summary from chat history"""
         try:
