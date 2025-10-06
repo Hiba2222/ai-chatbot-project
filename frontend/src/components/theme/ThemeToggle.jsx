@@ -12,6 +12,20 @@ import './ThemeToggle.css';
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 
+  const withThemeTransition = (action) => {
+    // Add a temporary class to enable smooth color transitions
+    const root = document.documentElement;
+    root.classList.add('theme-transition');
+    try {
+      action();
+    } finally {
+      // Remove the class after a short delay to restore original state
+      window.setTimeout(() => {
+        root.classList.remove('theme-transition');
+      }, 300);
+    }
+  };
+
   return (
     <div className={`theme-toggle-container ${theme === 'dark' ? 'dark' : ''}`}>
       <DropdownMenu>
@@ -23,13 +37,13 @@ export function ThemeToggle() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => toggleTheme('light')}>
+          <DropdownMenuItem onClick={() => withThemeTransition(() => toggleTheme('light'))}>
             Light
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => toggleTheme('dark')}>
+          <DropdownMenuItem onClick={() => withThemeTransition(() => toggleTheme('dark'))}>
             Dark
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => toggleTheme('system')}>
+          <DropdownMenuItem onClick={() => withThemeTransition(() => toggleTheme('system'))}>
             System
           </DropdownMenuItem>
         </DropdownMenuContent>
