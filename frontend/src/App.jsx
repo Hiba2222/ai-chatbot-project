@@ -7,7 +7,7 @@ import Navbar from './components/navbar/Navbar';
 import LandingPage from './components/landing-page/LandingPage';
 import Login from './components/login/Login';
 import { SignUp } from './components/sign-up/SignUp';
-import ChatBot from './components/chatbot/ChatBot';
+import ChatBot from './components/chatbot/Chatbot';
 import UserProfile from './components/user-profile/UserProfile';
 import ChatHistory from './components/chat-history/ChatHistory';
 
