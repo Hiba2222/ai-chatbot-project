@@ -43,10 +43,10 @@ A full-stack multilingual chatbot application supporting English and Arabic with
 
 - Python 3.10+
 - Node.js 18+
-- npm or yarn
+- npm
 - API keys (at least one of the following):
-  - OPENROUTER_API_KEY (recommended)
-  - HUGGINGFACE_API_KEY (optional fallback)
+  - OPENROUTER_API_KEY (primary)
+  - HUGGINGFACE_API_KEY (fallback)
 
 ## 🚀 Quick Start
 
@@ -82,7 +82,7 @@ cd backend
 
 # Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -106,6 +106,9 @@ python manage.py runserver
 
 ```bash
 cd frontend
+
+# Create frontend
+npm create vite@latest frontend -- --template react
 
 # Install dependencies
 npm install
@@ -333,14 +336,13 @@ Users can export their chat history in JSON format:
 - Postgres (recommended for production): provision Render PostgreSQL and set `DATABASE_URL` on the service.
 
 4) Environment and hosts
-- Set in dashboard if available (or use code defaults already present):
-  - `DJANGO_SECRET_KEY`: strong random value
-  - `DJANGO_DEBUG`: `False`
-  - `OPENROUTER_API_KEY`, `HUGGINGFACE_API_KEY` (optional)
-- `backend/config/settings.py` includes safe defaults for:
-  - `ALLOWED_HOSTS` including your Render host
-  - `CSRF_TRUSTED_ORIGINS` including your Render host
-  - CORS for Vercel (`CORS_ALLOWED_ORIGIN_REGEXES` for `*.vercel.app`), plus explicit allow for your project domain
+    - `DJANGO_SECRET_KEY`: strong random value
+    - `DJANGO_DEBUG`: `False`
+    - `OPENROUTER_API_KEY`, `HUGGINGFACE_API_KEY` (optional)
+  - `backend/config/settings.py` includes safe defaults for:
+    - `ALLOWED_HOSTS` including your Render host
+    - `CSRF_TRUSTED_ORIGINS` including your Render host
+    - CORS for Vercel (`CORS_ALLOWED_ORIGIN_REGEXES` for `*.vercel.app`), plus explicit allow for your project domain
 
 5) Deploy
 - Click “Clear build cache & deploy” to ensure changes take effect.
