@@ -305,6 +305,7 @@ def export_history(request):
         'chats': export_data
     })
      
+# api/views.py - Update api_root function
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def api_root(request):
@@ -316,89 +317,32 @@ def api_root(request):
         "version": "1.0",
         "endpoints": {
             "authentication": {
-                "signup": {
-                    "url": f"{base_url}auth/signup/",
-                    "method": "POST",
-                    "description": "Create a new user account",
-                    "public": True
-                },
-                "login": {
-                    "url": f"{base_url}auth/login/",
-                    "method": "POST", 
-                    "description": "Login and get JWT tokens",
-                    "public": True
-                },
-                "token_refresh": {
-                    "url": f"{base_url}auth/token/refresh/",
-                    "method": "POST",
-                    "description": "Refresh access token",
-                    "public": True
-                },
-                "test_auth": {
-                    "url": f"{base_url}auth/test/",
-                    "method": "GET",
-                    "description": "Test authentication status",
-                    "public": False
-                }
+                "signup": f"{base_url}auth/signup/",
+                "login": f"{base_url}auth/login/",
+                "test_auth": f"{base_url}auth/test/",
+                "token_refresh": f"{base_url}auth/token/refresh/"
             },
             "ai_models": {
-                "list_models": {
-                    "url": f"{base_url}models/",
-                    "method": "GET",
-                    "description": "Get available AI models",
-                    "public": True
-                }
+                "list_models": f"{base_url}models/"
             },
             "chat": {
-                "send_message": {
-                    "url": f"{base_url}chat/",
-                    "method": "POST",
-                    "description": "Send message to AI model",
-                    "public": False
-                },
-                "chat_history": {
-                    "url": f"{base_url}history/",
-                    "method": "GET",
-                    "description": "Get user's chat history", 
-                    "public": False
-                },
-                "delete_chat": {
-                    "url": f"{base_url}history/<int:chat_id>/",
-                    "method": "DELETE",
-                    "description": "Delete specific chat",
-                    "public": False
-                },
-                "export_history": {
-                    "url": f"{base_url}export/",
-                    "method": "GET",
-                    "description": "Export chat history as JSON",
-                    "public": False
-                }
+                "send_message": f"{base_url}chat/",
+                "get_history": f"{base_url}chat/history/",  # Updated
+                "delete_chat": f"{base_url}chat/history/<id>/",  # Updated
+                "export_chats": f"{base_url}chat/export/"  # Updated
             },
             "user_profile": {
-                "get_profile": {
-                    "url": f"{base_url}user/profile/",
-                    "method": "GET",
-                    "description": "Get user profile with AI summary",
-                    "public": False
-                },
-                "generate_summary": {
-                    "url": f"{base_url}user/profile/summary/",
-                    "method": "POST",
-                    "description": "Generate AI profile summary",
-                    "public": False
-                },
-                "update_language": {
-                    "url": f"{base_url}user/language/",
-                    "method": "PUT",
-                    "description": "Update language preference",
-                    "public": False
-                }
+                "get_profile": f"{base_url}user/profile/",
+                "generate_summary": f"{base_url}user/profile/summary/",
+                "update_language": f"{base_url}user/language/"
             }
         },
-        "documentation": {
-            "admin_panel": request.build_absolute_uri('/admin/'),
-            "health_check": request.build_absolute_uri('/health/')
+        "quick_start": {
+            "1": "Register: POST /api/auth/signup/",
+            "2": "Login: POST /api/auth/login/", 
+            "3": "Get models: GET /api/models/",
+            "4": "Start chatting: POST /api/chat/",
+            "5": "View history: GET /api/chat/history/"  # Updated
         }
     }
     

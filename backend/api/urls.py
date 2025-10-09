@@ -16,9 +16,9 @@ urlpatterns = [
 
     # Chat - these will be at /api/chat/
     path('chat/', views.chat, name='chat'),
-    path('history/', views.chat_history, name='chat_history'),
-    path('history/<int:chat_id>/', views.delete_chat, name='delete_chat'),
-    path('export/', views.export_history, name='export_history'),
+    path('chat/history/', views.chat_history, name='chat_history'),
+    path('chat/history/<int:chat_id>/', views.delete_chat, name='delete_chat'),
+    path('chat/export/', views.export_history, name='export_history'),
 
     # User profile - these will be at /api/user/
     path('user/profile/', views.user_profile, name='user_profile'),
