@@ -1,3 +1,5 @@
+# api/views.py
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -6,73 +8,79 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Chat, UserProfile
+from django.urls import reverse
 from .serializers import ChatSerializer, UserProfileSerializer
 from .ai_service import ai_service
 from .services import get_or_create_profile
 from django.utils import timezone
-import json
 import logging
 
 logger = logging.getLogger('api.views')
 
-# Rate limiting
-from rest_framework.throttling import UserRateThrottle
-
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-
+# Root endpoint
 def index(request):
-    return HttpResponse("Hello from API ")
+    """Root endpoint"""
+    return HttpResponse("AI Chatbot API is running! Use /api/ endpoints.")
 
-class ChatRateThrottle(UserRateThrottle):
-    rate = '30/minute'
+# Health check
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    return Response({'status': 'ok', 'message': 'API is healthy'})
 
-
+# Authentication endpoints
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
     """User registration endpoint"""
     try:
-        logger.info("Signup request received")
         username = (request.data.get('username') or '').strip()
         email = (request.data.get('email') or '').strip().lower()
         password = request.data.get('password')
         language = request.data.get('language', 'en')
         
-        logger.info(f"Parsed signup data - username={username}, email={email}, language={language}")
+        logger.info(f"Signup attempt - username: {username}")
         
         # Validate required fields
         if not username or not email or not password:
-            logger.info("Validation failed - missing required fields")
             return Response(
                 {'error': 'Username, email, and password are required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Validate email format
+        if '@' not in email or '.' not in email:
+            return Response(
+                {'error': 'Please enter a valid email address'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         if User.objects.filter(username=username).exists():
-            logger.info("Username already exists")
             return Response(
                 {'error': 'Username already exists'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Enforce unique email (case-insensitive)
         if User.objects.filter(email__iexact=email).exists():
-            logger.info("Email already in use")
             return Response(
-                {'error': 'Email already in use', 'code': 'email_exists'},
-                status=status.HTTP_409_CONFLICT
+                {'error': 'Email already in use'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
-        logger.info("Creating user...")
+        if len(password) < 6:
+            return Response(
+                {'error': 'Password must be at least 6 characters long'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-        logger.info(f"User created: {user.username}")
         
-        # Create user profile
+        # Create profile
         profile = get_or_create_profile(user, default_language=language)
         
         # Generate tokens
@@ -82,6 +90,7 @@ def signup(request):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user': {
+                'id': user.id,
                 'username': user.username,
                 'email': user.email,
                 'language': language
@@ -94,7 +103,6 @@ def signup(request):
             {'error': 'Internal server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -113,6 +121,7 @@ def login(request):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user': {
+                'id': user.id,
                 'username': user.username,
                 'email': user.email,
                 'language': profile.language_preference
@@ -124,7 +133,16 @@ def login(request):
         status=status.HTTP_401_UNAUTHORIZED
     )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_auth(request):
+    """Test authentication endpoint"""
+    return Response({
+        'message': 'Authentication successful',
+        'user': request.user.username
+    })
 
+# AI Models endpoint
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_models(request):
@@ -142,34 +160,20 @@ def get_models(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def test_auth(request):
-    """Test authentication endpoint"""
-    return Response({
-        'message': 'Authentication successful',
-        'user': request.user.username,
-        'authenticated': request.user.is_authenticated
-    })
-
-
+# Chat endpoints
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def chat(request):
     """Handle chat requests with AI models"""
     try:
         message = request.data.get('message')
-        model = request.data.get('model', 'grok')  # Default to grok
+        model = request.data.get('model', 'grok')
         
-        # Get user's language preference
         profile = get_or_create_profile(request.user)
         language = profile.language_preference
         
-        # Get AI response
         ai_response = ai_service.get_response(model, message, language)
         
-        # Save chat to database
         chat = Chat.objects.create(
             user=request.user,
             model=model,
@@ -193,7 +197,6 @@ def chat(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def chat_history(request):
@@ -201,7 +204,6 @@ def chat_history(request):
     chats = Chat.objects.filter(user=request.user).order_by('-created_at')
     serializer = ChatSerializer(chats, many=True)
     return Response(serializer.data)
-
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -217,17 +219,15 @@ def delete_chat(request, chat_id):
             status=status.HTTP_404_NOT_FOUND
         )
 
-
+# User profile endpoints
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
-    """Get user profile with AI-generated summary"""
+    """Get user profile"""
     try:
         profile = get_or_create_profile(request.user)
-        
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
-        
     except Exception as e:
         logger.exception("User profile error")
         return Response(
@@ -235,14 +235,12 @@ def user_profile(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generate_profile_summary(request):
-    """Force-generate or refresh the user's AI profile summary now"""
+    """Generate user profile summary"""
     try:
         profile = get_or_create_profile(request.user)
-
         chats = Chat.objects.filter(user=request.user).order_by('-created_at')[:50]
         chat_data = [
             {
@@ -268,7 +266,6 @@ def generate_profile_summary(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_language(request):
@@ -278,22 +275,19 @@ def update_language(request):
         profile = get_or_create_profile(request.user)
         profile.language_preference = language
         profile.save()
-        
         return Response({'message': 'Language updated successfully'})
     except Exception as e:
         logger.exception("Language update error")
         return Response(
-            {'error': 'Internal server error', 'details': str(e)},
+            {'error': 'Internal server error'},
             status=status.HTTP_400_BAD_REQUEST
         )
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_history(request):
     """Export chat history as JSON"""
     chats = Chat.objects.filter(user=request.user).order_by('-created_at')
-    
     export_data = [
         {
             'date': chat.created_at.isoformat(),
@@ -304,10 +298,108 @@ def export_history(request):
         }
         for chat in chats
     ]
-    
     return Response({
         'user': request.user.username,
         'export_date': timezone.now().isoformat(),
         'total_chats': len(export_data),
         'chats': export_data
     })
+     
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_root(request):
+    """API root endpoint that lists all available endpoints"""
+    base_url = request.build_absolute_uri('/api/')
+    
+    endpoints = {
+        "message": "AI Chatbot API - Available Endpoints",
+        "version": "1.0",
+        "endpoints": {
+            "authentication": {
+                "signup": {
+                    "url": f"{base_url}auth/signup/",
+                    "method": "POST",
+                    "description": "Create a new user account",
+                    "public": True
+                },
+                "login": {
+                    "url": f"{base_url}auth/login/",
+                    "method": "POST", 
+                    "description": "Login and get JWT tokens",
+                    "public": True
+                },
+                "token_refresh": {
+                    "url": f"{base_url}auth/token/refresh/",
+                    "method": "POST",
+                    "description": "Refresh access token",
+                    "public": True
+                },
+                "test_auth": {
+                    "url": f"{base_url}auth/test/",
+                    "method": "GET",
+                    "description": "Test authentication status",
+                    "public": False
+                }
+            },
+            "ai_models": {
+                "list_models": {
+                    "url": f"{base_url}models/",
+                    "method": "GET",
+                    "description": "Get available AI models",
+                    "public": True
+                }
+            },
+            "chat": {
+                "send_message": {
+                    "url": f"{base_url}chat/",
+                    "method": "POST",
+                    "description": "Send message to AI model",
+                    "public": False
+                },
+                "chat_history": {
+                    "url": f"{base_url}history/",
+                    "method": "GET",
+                    "description": "Get user's chat history", 
+                    "public": False
+                },
+                "delete_chat": {
+                    "url": f"{base_url}history/<int:chat_id>/",
+                    "method": "DELETE",
+                    "description": "Delete specific chat",
+                    "public": False
+                },
+                "export_history": {
+                    "url": f"{base_url}export/",
+                    "method": "GET",
+                    "description": "Export chat history as JSON",
+                    "public": False
+                }
+            },
+            "user_profile": {
+                "get_profile": {
+                    "url": f"{base_url}user/profile/",
+                    "method": "GET",
+                    "description": "Get user profile with AI summary",
+                    "public": False
+                },
+                "generate_summary": {
+                    "url": f"{base_url}user/profile/summary/",
+                    "method": "POST",
+                    "description": "Generate AI profile summary",
+                    "public": False
+                },
+                "update_language": {
+                    "url": f"{base_url}user/language/",
+                    "method": "PUT",
+                    "description": "Update language preference",
+                    "public": False
+                }
+            }
+        },
+        "documentation": {
+            "admin_panel": request.build_absolute_uri('/admin/'),
+            "health_check": request.build_absolute_uri('/health/')
+        }
+    }
+    
+    return Response(endpoints)

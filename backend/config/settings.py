@@ -157,38 +157,32 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:3000'
-).split(',')
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://ai-chatbot-project-pearl.vercel.app',
+]
+
+# Add Render hostname if available
+_render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if _render_host:
+    render_origin = f"https://{_render_host}"
+    if render_origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(render_origin)
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Additional CORS settings for better compatibility
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+# CSRF settings - FIXED
+CSRF_TRUSTED_ORIGINS = [
+    'https://ai-chatbot-project-2-chyi.onrender.com',
+    'https://ai-chatbot-project-pearl.vercel.app',
 ]
 
-# CSRF trusted origins: allow from env or default to Render hostname for free plan
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    'CSRF_TRUSTED_ORIGINS',
-    'https://ai-chatbot-project-2-chyi.onrender.com'
-).split(',')
-
-# Allow any Vercel preview/production domain by default
-# This helps when you can't set env vars on Render free plan
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
-]
+# Add Render hostname to CSRF if available
+if _render_host:
+    render_csrf_origin = f"https://{_render_host}"
+    if render_csrf_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(render_csrf_origin)
 
 # Always include Render external hostname if available
 _render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')

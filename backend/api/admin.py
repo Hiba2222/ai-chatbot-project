@@ -49,6 +49,8 @@ class UserProfileAdmin(admin.ModelAdmin):
     
     session_count.short_description = 'Sessions'
     
+    # Simplified get_profile_summary method
+
     def get_profile_summary(self, obj):
         if not obj.pk:
             return "Save profile to see summary"
@@ -56,64 +58,19 @@ class UserProfileAdmin(admin.ModelAdmin):
         total_chats = obj.user.chats.count()
         total_sessions = obj.user.chat_sessions.count()
         
-        # Model breakdown
-        model_stats = obj.user.chats.values('model').annotate(count=Count('id')).order_by('-count')
-        model_breakdown = '<br>'.join([
-            f"&nbsp;&nbsp;• <strong>{stat['model'].title()}</strong>: {stat['count']} chat{'s' if stat['count'] != 1 else ''}" 
-            for stat in model_stats
-        ]) if model_stats else '&nbsp;&nbsp;• No chats yet'
-        
-        # Language breakdown
-        lang_stats = obj.user.chats.values('language').annotate(count=Count('id')).order_by('-count')
-        lang_mapping = {'en': 'English', 'ar': 'Arabic'}
-        lang_breakdown = '<br>'.join([
-            f"&nbsp;&nbsp;• <strong>{lang_mapping.get(stat['language'], stat['language'])}</strong>: {stat['count']} chat{'s' if stat['count'] != 1 else ''}" 
-            for stat in lang_stats
-        ]) if lang_stats else '&nbsp;&nbsp;• No chats yet'
-        
-        # Recent activity
-        recent_chat = obj.user.chats.first()
-        last_activity = recent_chat.created_at.strftime('%Y-%m-%d %H:%M') if recent_chat else 'No activity yet'
-        
-        html = f"""
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #417690;">
-            <h3 style="margin-top: 0; color: #417690;">📊 User Profile Summary</h3>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div style="background: white; padding: 15px; border-radius: 6px;">
-                    <h4 style="margin-top: 0; color: #666;">Overview</h4>
-                    <p style="margin: 5px 0;"><strong>Username:</strong> {obj.user.username}</p>
-                    <p style="margin: 5px 0;"><strong>Email:</strong> {obj.user.email}</p>
-                    <p style="margin: 5px 0;"><strong>Language:</strong> {obj.get_language_preference_display()}</p>
-                    <p style="margin: 5px 0;"><strong>Last Activity:</strong> {last_activity}</p>
-                </div>
-                
-                <div style="background: white; padding: 15px; border-radius: 6px;">
-                    <h4 style="margin-top: 0; color: #666;">Activity Stats</h4>
-                    <p style="margin: 5px 0;"><strong>Total Chats:</strong> <span style="color: #28a745; font-size: 1.2em;">{total_chats}</span></p>
-                    <p style="margin: 5px 0;"><strong>Chat Sessions:</strong> <span style="color: #007bff; font-size: 1.2em;">{total_sessions}</span></p>
-                    <p style="margin: 5px 0;"><strong>Member Since:</strong> {obj.created_at.strftime('%Y-%m-%d')}</p>
-                </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div style="background: white; padding: 15px; border-radius: 6px;">
-                    <h4 style="margin-top: 0; color: #666;">📈 Usage by Model</h4>
-                    {model_breakdown}
-                </div>
-                
-                <div style="background: white; padding: 15px; border-radius: 6px;">
-                    <h4 style="margin-top: 0; color: #666;">🌐 Usage by Language</h4>
-                    {lang_breakdown}
-                </div>
-            </div>
-            
-            {'<div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #ffc107;"><strong>⚠️ AI Summary:</strong><br>' + (obj.ai_summary if obj.ai_summary else '<em>No AI summary generated yet</em>') + '</div>' if obj.ai_summary or True else ''}
-        </div>
+        # Simple text summary instead of complex HTML
+        summary = f"""
+        User: {obj.user.username}
+        Email: {obj.user.email}
+        Language: {obj.get_language_preference_display()}
+        Total Chats: {total_chats}
+        Chat Sessions: {total_sessions}
+        Member Since: {obj.created_at.strftime('%Y-%m-%d')}
         """
-        return format_html(html)
-    
-    get_profile_summary.short_description = 'Profile Summary & Statistics'
+        
+        return summary
+
+    get_profile_summary.short_description = 'Profile Summary'
 
 
 @admin.register(Chat)

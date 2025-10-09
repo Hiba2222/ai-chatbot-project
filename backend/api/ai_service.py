@@ -27,39 +27,40 @@ class AIService:
         self.hf_api_url = "https://api-inference.huggingface.co/models/"
         
         # 4 Free models that work with OpenRouter (with approximate HF fallbacks)
+        # api/ai_service.py - Updated models section
+
         self.available_models = [
             {
-                "id": "meta-llama/llama-3.3-70b-instruct:free",
-                "name": "LLaMA 3.3 30B Instruct",
+                "id": "meta-llama/llama-3.1-8b-instruct:free",
+                "name": "LLaMA 3.1 8B Instruct",
                 "provider": "Meta",
-                "description": "Powerful 70B parameter model with advanced reasoning capabilities",
-                # Public closest HF alternative; adjust as needed
+                "description": "Efficient 8B parameter model with good reasoning capabilities",
                 "hf_repo": "meta-llama/Meta-Llama-3-8B-Instruct"
             },
             {
-                "id": "deepseek/deepseek-chat-v3.1:free",
-                "name": "DeepSeek V3.1",
+                "id": "deepseek/deepseek-chat:free",
+                "name": "DeepSeek Chat",
                 "provider": "DeepSeek",
                 "description": "Advanced chat model with strong coding and reasoning abilities",
-                # Use coder instruct as an alternative
                 "hf_repo": "deepseek-ai/deepseek-coder-6.7b-instruct"
             },
             {
-                "id": "google/gemma-3-27b-it:free",
-                "name": "gemma-3-27b",
+                "id": "google/gemma-2-9b-it:free",
+                "name": "Gemma 2 9B",
                 "provider": "Google",
-                "description": "Google's latest Gemma model with 27B parameters",
+                "description": "Google's efficient 9B parameter model",
                 "hf_repo": "google/gemma-2-9b-it"
             },
             {
-                "id": "mistralai/mistral-small-3.2-24b-instruct:free",
-                "name": "mistral-small-3.2",
+                "id": "mistralai/mistral-7b-instruct:free",
+                "name": "Mistral 7B Instruct",
                 "provider": "Mistral AI",
-                "description": "Efficient 24B model with multilingual support and fast responses",
+                "description": "Efficient 7B model with multilingual support",
                 "hf_repo": "mistralai/Mistral-7B-Instruct-v0.3"
             }
         ]
-    
+        
+        
     def get_available_models(self) -> List[Dict[str, str]]:
         """Get list of available models"""
         return self.available_models
