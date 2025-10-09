@@ -1,7 +1,3 @@
-<img width="1351" height="594" alt="10" src="https://github.com/user-attachments/assets/891b1efc-de93-47ad-8855-030fee89e201" />
-<img width="1347" height="579" alt="9" src="https://github.com/user-attachments/assets/64645d48-7e49-4eeb-a7e5-a8428714f7f8" />
-<img width="424" height="566" alt="8" src="https://github.com/user-attachments/assets/ec9bd162-1829-47f3-a1f1-78b1621880b9" />
-<img width="410" height="594" alt="7" src="https://github.com/user-attachments/assets/14916dd7-ce6e-4f50-9933-9f394cbdec19" />
 <img width="1334" height="582" alt="6" src="https://github.com/user-attachments/assets/1a5674a3-c499-476f-a035-6a7ef017f59c" />
 # 🤖 AI-Powered Chatbot Platform
 
@@ -43,10 +39,10 @@ A full-stack multilingual chatbot application supporting English and Arabic with
 
 - Python 3.10+
 - Node.js 18+
-- npm or yarn
+- npm
 - API keys (at least one of the following):
-  - OPENROUTER_API_KEY (recommended)
-  - HUGGINGFACE_API_KEY (optional fallback)
+  - OPENROUTER_API_KEY (primary)
+  - HUGGINGFACE_API_KEY (fallback)
 
 ## 🚀 Quick Start
 
@@ -82,7 +78,7 @@ cd backend
 
 # Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -106,6 +102,9 @@ python manage.py runserver
 
 ```bash
 cd frontend
+
+# Create frontend
+npm create vite@latest frontend -- --template react
 
 # Install dependencies
 npm install
@@ -283,24 +282,17 @@ Summaries are updated:
 
 ## 📥 Export Feature
 
-Users can export their chat history in JSON format:
+Users can export their chat history in text or PDF format for easy saving and sharing.
 
-```json
-{
-  "user": "username",
-  "export_date": "2025-10-04T10:30:00Z",
-  "total_chats": 50,
-  "chats": [
-    {
-      "date": "2025-10-04T10:00:00Z",
-      "model": "meta-llama/llama-3.3-70b-instruct:free",
-      "user_message": "Hello",
-      "ai_response": "Hi! How can I help?",
-      "language": "en"
-    }
-  ]
-}
-```
+## 📸 Screenshots
+
+### 🔐 Authentication (Login / Signup)
+<img width="424" height="566" alt="8" src="https://github.com/user-attachments/assets/ec9bd162-1829-47f3-a1f1-78b1621880b9" />
+<img width="410" height="594" alt="7" src="https://github.com/user-attachments/assets/14916dd7-ce6e-4f50-9933-9f394cbdec19" />
+
+### 💬 Chat Interface
+<img width="1351" height="594" alt="10" src="https://github.com/user-attachments/assets/891b1efc-de93-47ad-8855-030fee89e201" />
+<img width="1347" height="579" alt="9" src="https://github.com/user-attachments/assets/64645d48-7e49-4eeb-a7e5-a8428714f7f8" />
 
 ## 🚢 Deployment
 
@@ -333,14 +325,13 @@ Users can export their chat history in JSON format:
 - Postgres (recommended for production): provision Render PostgreSQL and set `DATABASE_URL` on the service.
 
 4) Environment and hosts
-- Set in dashboard if available (or use code defaults already present):
-  - `DJANGO_SECRET_KEY`: strong random value
-  - `DJANGO_DEBUG`: `False`
-  - `OPENROUTER_API_KEY`, `HUGGINGFACE_API_KEY` (optional)
-- `backend/config/settings.py` includes safe defaults for:
-  - `ALLOWED_HOSTS` including your Render host
-  - `CSRF_TRUSTED_ORIGINS` including your Render host
-  - CORS for Vercel (`CORS_ALLOWED_ORIGIN_REGEXES` for `*.vercel.app`), plus explicit allow for your project domain
+    - `DJANGO_SECRET_KEY`: strong random value
+    - `DJANGO_DEBUG`: `False`
+    - `OPENROUTER_API_KEY`, `HUGGINGFACE_API_KEY` (optional)
+  - `backend/config/settings.py` includes safe defaults for:
+    - `ALLOWED_HOSTS` including your Render host
+    - `CSRF_TRUSTED_ORIGINS` including your Render host
+    - CORS for Vercel (`CORS_ALLOWED_ORIGIN_REGEXES` for `*.vercel.app`), plus explicit allow for your project domain
 
 5) Deploy
 - Click “Clear build cache & deploy” to ensure changes take effect.
