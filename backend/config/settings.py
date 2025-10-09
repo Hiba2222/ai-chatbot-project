@@ -21,20 +21,13 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 # Read from environment. Do NOT hardcode in production.
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-insecure-secret-key')  # replace in production
 
 # Debug mode: default True for development; set DJANGO_DEBUG=False in production
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-# Hosts and CORS read from environment for deploy flexibility
-# Examples:
-#   ALLOWED_HOSTS=your-service.onrender.com,localhost,127.0.0.1
-#   CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
+
 # Build ALLOWED_HOSTS from env, but fall back to safe defaults when env is missing or blank
 _raw_allowed_hosts = os.getenv('ALLOWED_HOSTS', '').strip()
 if _raw_allowed_hosts:
@@ -92,8 +85,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -103,8 +94,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -133,9 +122,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 # Use a leading slash; required for correct admin static URLs
 STATIC_URL = '/static/'
@@ -221,17 +207,17 @@ if _vercel_origin not in CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.append(_vercel_origin)
 
 ## Database configuration: prefer PostgreSQL DATABASE_URL if provided
-try:
-    import dj_database_url  # type: ignore
-    _db_url = os.getenv('DATABASE_URL')
-    if _db_url and (_db_url.startswith('postgres://') or _db_url.startswith('postgresql://')):
-        # Only override when a Postgres URL is provided
+_db_url = os.getenv('DATABASE_URL', '')
+
+if _db_url and (_db_url.startswith('postgres://') or _db_url.startswith('postgresql://')):
+    try:
+        import dj_database_url
         DATABASES = {
             'default': dj_database_url.parse(_db_url, conn_max_age=600, ssl_require=True)
         }
-    # Otherwise keep the default SQLite config defined above
-except Exception:
-    # Fall back to default sqlite3 defined above if dj_database_url missing or not configured
+    except Exception as e:
+        print(f"[ERROR] Failed to parse DATABASE_URL: {e}. Using SQLite.")
+else:
     pass
 
 # Logging configuration: use console logging and capture Django/DRF logs
