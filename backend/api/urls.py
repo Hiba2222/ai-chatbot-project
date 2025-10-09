@@ -24,4 +24,6 @@ urlpatterns = [
     path('user/profile/', views.user_profile, name='user_profile'),
     path('user/profile/summary/', views.generate_profile_summary, name='generate_profile_summary'),
     path('user/language/', views.update_language, name='update_language'),
+    
+    path('debug/db/', views.debug_db, name='debug_db'),
 ]

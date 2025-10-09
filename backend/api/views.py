@@ -347,3 +347,28 @@ def api_root(request):
     }
     
     return Response(endpoints)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def debug_db(request):
+    """Debug endpoint to check database state"""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    users = User.objects.all()
+    user_data = []
+    
+    for user in users:
+        user_data.append({
+            'username': user.username,
+            'email': user.email,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'is_active': user.is_active
+        })
+    
+    return Response({
+        'total_users': len(users),
+        'users': user_data,
+        'database_engine': settings.DATABASES['default']['ENGINE']
+    })
