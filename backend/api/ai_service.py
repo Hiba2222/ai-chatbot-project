@@ -31,35 +31,35 @@ class AIService:
 
         self.available_models = [
             {
-                "id": "meta-llama/llama-3.1-8b-instruct:free",
-                "name": "LLaMA 3.1 8B Instruct",
+                "id": "meta-llama/llama-3.3-70b-instruct:free",
+                "name": "LLaMA 3.3 30B Instruct",
                 "provider": "Meta",
-                "description": "Efficient 8B parameter model with good reasoning capabilities",
+                "description": "Powerful 70B parameter model with advanced reasoning capabilities",
                 "hf_repo": "meta-llama/Meta-Llama-3-8B-Instruct"
             },
             {
-                "id": "deepseek/deepseek-chat:free",
-                "name": "DeepSeek Chat",
+                "id": "deepseek/deepseek-chat-v3.1:free",
+                "name": "DeepSeek V3.1",
                 "provider": "DeepSeek",
                 "description": "Advanced chat model with strong coding and reasoning abilities",
                 "hf_repo": "deepseek-ai/deepseek-coder-6.7b-instruct"
             },
             {
-                "id": "google/gemma-2-9b-it:free",
-                "name": "Gemma 2 9B",
+                "id": "google/gemma-3-27b-it:free",
+                "name": "gemma-3-27b",
                 "provider": "Google",
-                "description": "Google's efficient 9B parameter model",
+                "description": "Google's latest Gemma model with 27B parameters",
                 "hf_repo": "google/gemma-2-9b-it"
             },
             {
-                "id": "mistralai/mistral-7b-instruct:free",
-                "name": "Mistral 7B Instruct",
+                "id": "mistralai/mistral-small-3.2-24b-instruct:free",
+                "name": "mistral-small-3.2",
                 "provider": "Mistral AI",
-                "description": "Efficient 7B model with multilingual support",
+                "description": "Efficient 24B model with multilingual support and fast responses",
                 "hf_repo": "mistralai/Mistral-7B-Instruct-v0.3"
             }
         ]
-        
+
         
     def get_available_models(self) -> List[Dict[str, str]]:
         """Get list of available models"""
