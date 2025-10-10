@@ -23,6 +23,7 @@ urlpatterns = [
     # User profile - these will be at /api/user/
     path('user/profile/', views.user_profile, name='user_profile'),
     path('user/profile/summary/', views.generate_profile_summary, name='generate_profile_summary'),
+    path('user/profile/generate-summary/', views.generate_profile_summary, name='generate_profile_summary_alias'),
     path('user/language/', views.update_language, name='update_language'),
     
     path('debug/db/', views.debug_db, name='debug_db'),

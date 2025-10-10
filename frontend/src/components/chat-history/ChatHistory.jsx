@@ -39,14 +39,14 @@ const ChatHistory = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await api.delete(`/api/chat/${chatId}/`, {
+      await api.delete(`/api/chat/history/${chatId}/`, {  // ← CHANGED THIS LINE
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setChats(chats.filter(chat => chat.id !== chatId));
-      if (selectedChat?.id === chatId) setSelectedChat(null);
+      
+      // Remove from local state
+      setChats(prev => prev.filter(chat => chat.id !== chatId));
     } catch (error) {
       console.error('Error deleting chat:', error);
-      alert(t('errors.server_error'));
     }
   };
 

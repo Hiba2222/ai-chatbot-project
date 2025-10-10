@@ -16,9 +16,9 @@ export const CtaContainer = () => {
           return;
         }
         try {
-          await api.get('/api/test-auth/');
+          await api.get('/api/auth/test/');
           navigate('/chat');
-        } catch (e) {
+        } catch {
           navigate('/login');
         }
       };

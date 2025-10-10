@@ -38,11 +38,11 @@ class AIService:
                 "hf_repo": "meta-llama/Meta-Llama-3-8B-Instruct"
             },
             {
-                "id": "deepseek/deepseek-chat-v3.1:free",
-                "name": "DeepSeek V3.1",
-                "provider": "DeepSeek",
-                "description": "Advanced chat model with strong coding and reasoning abilities",
-                "hf_repo": "deepseek-ai/deepseek-coder-6.7b-instruct"
+                "id": "qwen/qwen3-235b-a22b:free",
+                "name": "Qwen3 235B",
+                "provider": "Qwen",
+                "description": "Massive 253B parameter model optimized for coding and long-context tasks",
+                "hf_repo": "Qwen/Qwen2.5-Coder-32B-Instruct"
             },
             {
                 "id": "google/gemma-3-27b-it:free",

@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Chat, UserProfile
+from django.conf import settings
 from django.urls import reverse
 from .serializers import ChatSerializer, UserProfileSerializer
 from .ai_service import ai_service

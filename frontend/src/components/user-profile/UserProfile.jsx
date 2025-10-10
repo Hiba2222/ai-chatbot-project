@@ -46,7 +46,7 @@ export const UserProfile = () => {
     }
   };
 
-  const exportHistory = async () => {
+  /*const exportHistory = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await api.get('/api/chat/export/', {
@@ -64,7 +64,7 @@ export const UserProfile = () => {
     } catch (error) {
       console.error('Error exporting history:', error);
     }
-  };
+  };*/
 
   const exportHistoryTxt = async () => {
     try {
@@ -107,7 +107,7 @@ export const UserProfile = () => {
 
       const { chats = [], user = 'user', export_date } = response.data || {};
 
-      // Ensure html2canvas & jsPDF (for direct download)
+      // Load jsPDF only (no html2canvas needed)
       const ensureScript = (src, check) => new Promise((resolve, reject) => {
         if (check()) return resolve();
         const s = document.createElement('script');
@@ -117,80 +117,79 @@ export const UserProfile = () => {
         document.body.appendChild(s);
       });
 
-      await ensureScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', () => window.html2canvas);
       await ensureScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', () => window.jspdf?.jsPDF);
 
       const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-      // Build styled HTML (emojis supported by browser rendering)
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.left = '-9999px';
-      container.style.top = '0';
-      container.style.width = '800px';
-      container.style.padding = '24px';
-      container.style.fontFamily = "'Segoe UI', 'Noto Color Emoji', system-ui, -apple-system, sans-serif";
-      container.style.color = '#111827';
-      container.style.background = '#ffffff';
+      // Set initial position
+      let yPosition = 20;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
 
-      const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      // Header
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text('Chat History Export', margin, yPosition);
+      yPosition += 10;
 
-      const header = document.createElement('div');
-      header.innerHTML = `
-        <h1 style="margin:0 0 8px 0;font-size:20px;">Chat Export</h1>
-        <div style="margin:0 0 16px 0;font-size:12px;line-height:1.4;">
-          <div><strong>User:</strong> ${esc(user)}</div>
-          <div><strong>Exported:</strong> ${esc(export_date)}</div>
-        </div>
-      `;
-      container.appendChild(header);
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`User: ${user}`, margin, yPosition);
+      yPosition += 6;
+      doc.text(`Exported: ${export_date}`, margin, yPosition);
+      yPosition += 15;
 
-      chats.forEach((c, idx) => {
-        const section = document.createElement('div');
-        section.style.marginBottom = '16px';
-        section.innerHTML = `
-          <div style="font-weight:600;margin:0 0 6px 0;">Conversation ${idx + 1}</div>
-          <div style="font-size:12px;color:#374151;margin:0 0 12px 0;">Date: ${esc(c.date)} • Model: ${esc(c.model)}</div>
-          <div style="border-radius:8px;background:#e8f4ff;padding:12px 14px;margin:0 0 10px 0;">
-            <div style="font-weight:600;margin:0 0 6px 0;">You</div>
-            <div style="white-space:pre-wrap;word-break:break-word;">${esc(c.user_message)}</div>
-          </div>
-          <div style="border-radius:8px;background:#f5f5f5;padding:12px 14px;">
-            <div style="font-weight:600;margin:0 0 6px 0;">AI</div>
-            <div style="white-space:pre-wrap;word-break:break-word;">${esc(c.ai_response)}</div>
-          </div>
-        `;
-        container.appendChild(section);
+      // Add chats
+      chats.forEach((chat, index) => {
+        // Check if we need a new page
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        // Conversation header
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Conversation ${index + 1}`, margin, yPosition);
+        yPosition += 7;
+
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Date: ${chat.date} • Model: ${chat.model}`, margin, yPosition);
+        yPosition += 10;
+
+        // User message
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('You:', margin, yPosition);
+        yPosition += 6;
+
+        doc.setFont(undefined, 'normal');
+        const userLines = doc.splitTextToSize(chat.user_message || '', contentWidth);
+        doc.text(userLines, margin, yPosition);
+        yPosition += (userLines.length * 6) + 8;
+
+        // AI response
+        doc.setFont(undefined, 'bold');
+        doc.text('AI:', margin, yPosition);
+        yPosition += 6;
+
+        doc.setFont(undefined, 'normal');
+        const aiLines = doc.splitTextToSize(chat.ai_response || '', contentWidth);
+        doc.text(aiLines, margin, yPosition);
+        yPosition += (aiLines.length * 6) + 15;
+
+        // Add separator line
+        if (index < chats.length - 1) {
+          doc.setDrawColor(200, 200, 200);
+          doc.line(margin, yPosition, pageWidth - margin, yPosition);
+          yPosition += 10;
+        }
       });
 
-      document.body.appendChild(container);
-
-      // Render to canvas and create paginated PDF
-      const canvas = await window.html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'pt', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = pageWidth;
-      const imgHeight = canvas.height * (imgWidth / canvas.width);
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`chat_history_${new Date().toISOString()}.pdf`);
-
-      document.body.removeChild(container);
+      doc.save(`chat_history_${new Date().toISOString()}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF history:', error);
     }
