@@ -9,6 +9,12 @@ const MessageItem = ({ msg }) => {
       <div className={`message-content ${msg.role === 'user' ? 'user' : ''}`}>
         <a href={msg.role === 'user' ? '/profile' : ''}>
           <Avatar className="message-avatar">
+            <AvatarImage 
+              src={msg.role === 'user' ? '/user-avatar.png' : '/ai-avatar.png'}
+              onError={(e) => {
+                e.target.style.display = 'none'; // Hide broken image
+              }}
+            />
             <AvatarFallback className="message-avatar-fallback">
               {msg.role === 'user' ? 'You' : 'AI'}
             </AvatarFallback>
